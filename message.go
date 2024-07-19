@@ -1,8 +1,16 @@
 package main
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"io"
+)
 
 type messageID uint8
+
+type Message struct {
+	ID      messageID
+	Payload []byte
+}
 
 const (
 	// MsgChoke chokes the receiver
@@ -38,4 +46,32 @@ func (m *Message) Serialize() []byte {
 	buf[4] = byte(m.ID)
 	copy(buf[5:], m.Payload)
 	return buf
+}
+
+// Read parses a message from a stream. Returns `nil` on keep-alive message
+func Read(r io.Reader) (*Message, error) {
+	lengthBuf := make([]byte, 4)
+	_, err := io.ReadFull(r, lengthBuf)
+	if err != nil {
+		return nil, err
+	}
+	length := binary.BigEndian.Uint32(lengthBuf)
+
+	// keep-alive message
+	if length == 0 {
+		return nil, nil
+	}
+
+	messageBuf := make([]byte, length)
+	_, err = io.ReadFull(r, messageBuf)
+	if err != nil {
+		return nil, err
+	}
+
+	m := Message{
+		ID:      messageID(messageBuf[0]),
+		Payload: messageBuf[1:],
+	}
+
+	return &m, nil
 }

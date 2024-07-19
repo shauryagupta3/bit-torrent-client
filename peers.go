@@ -6,6 +6,11 @@ import (
 	"net"
 )
 
+type Peer struct {
+	IP   net.IP
+	Port uint16
+}
+
 func Unmarshal(peersbin []byte) ([]Peer, error) {
 	const peerSize = 6 // 4 + 2
 	numPeers := len(peersbin) / peerSize

@@ -1,4 +1,4 @@
-module github.com/shauryagupta3/lib-management
+module bit-torrent
 
 go 1.22.5
 

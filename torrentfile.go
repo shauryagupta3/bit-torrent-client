@@ -5,6 +5,14 @@ import (
 	"strconv"
 )
 
+type TorrentFile struct {
+	Announce    string
+	InfoHash    [20]byte
+	PieceHashes [][20]byte
+	PieceLength int
+	Length      int
+	Name        string
+}
 
 // func (bto *bencodeTorrent) toTorrentFile() (TorrentFile, error) {
 // 	infoHash, err := bto.Info.hash()
@@ -26,14 +34,14 @@ import (
 // 	return t, nil
 // }
 
-func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16)(string,error){
-	base,err := url.Parse(t.Announce)
+func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, error) {
+	base, err := url.Parse(t.Announce)
 
-	if err!=nil {
-		return "",err
+	if err != nil {
+		return "", err
 	}
 
-	params:= url.Values{
+	params := url.Values{
 		"info_hash":  []string{string(t.InfoHash[:])},
 		"peer_id":    []string{string(peerID[:])},
 		"port":       []string{strconv.Itoa(int(port))},
@@ -44,5 +52,5 @@ func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16)(string,error
 	}
 
 	base.RawQuery = params.Encode()
-	return "",nil
+	return "", nil
 }
